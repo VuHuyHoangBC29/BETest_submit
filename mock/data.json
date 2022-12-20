@@ -1,0 +1,61 @@
+{
+  "login": {
+    "message": "some message from the server",
+    "data": {
+      "access_token": "my_secret_token"
+    },
+    "status": true
+  },
+  "userList": [
+    {
+      "name": "user1",
+      "id": "1",
+      "age": 27
+    },
+    {
+      "name": "user2",
+      "id": "2",
+      "age": 72
+    },
+    {
+      "name": "user3",
+      "age": 26,
+      "id": "NHzBb7s"
+    },
+    {
+      "name": "user4",
+      "age": 42,
+      "id": "ImNJBn8"
+    },
+    {
+      "name": "user5",
+      "age": 53,
+      "id": "a_sWkIX"
+    },
+    {
+      "name": "user6",
+      "age": 76,
+      "id": "OslOTcp"
+    },
+    {
+      "name": "user7",
+      "age": 32,
+      "id": "jw3VW3j"
+    },
+    {
+      "name": "user8",
+      "age": 45,
+      "id": "jtWHDM5"
+    },
+    {
+      "name": "user9",
+      "age": 54,
+      "id": "GqaPRhF"
+    },
+    {
+      "name": "user10",
+      "age": 58,
+      "id": "kaxTbnQ"
+    }
+  ]
+}
