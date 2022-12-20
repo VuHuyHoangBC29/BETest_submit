@@ -33,6 +33,7 @@ import {
 } from "@/store/reducers/usersListReducer";
 import { ColumnsType } from "antd/lib/table";
 import DeleteIcon from "@mui/icons-material/Delete";
+import httpClientApi from "@/apis/http-client.api";
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -47,17 +48,11 @@ function User(props: any) {
 
   const [listDataUser, setListDataUser] = useState();
 
+  const [selectedUser, setSelectedUser] = useState<UserType | null>();
+
   const dispatch = useDispatch<AppDispatch>();
 
-  // const fetchUserList = async () => {
-  //   const response = await httpClientApi.httpGet("/userList");
-
-  //   console.log(response);
-
-  //   setListDataUser(response);
-
-  //   setLocalItem("userList", response);
-  // };
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const keys = window.location.pathname;
@@ -75,11 +70,6 @@ function User(props: any) {
   const { usersList } = useSelector(
     (state: RootState) => state.usersListReducer,
   );
-
-  const showPopover = (record: any) => {
-    setIsShowPopover(true);
-    setkeySelectRecord(record.id);
-  };
 
   const onEditUser = (record: any) => {
     navigate(`/home/user/edit/${record.id}`);
@@ -113,12 +103,16 @@ function User(props: any) {
   const onFinish = async (values: any) => {
     console.log("Success:", values);
 
-    const newUser = {
+    const user = {
       name: values.name,
       age: parseInt(values.age),
     };
 
-    dispatch(addUserAction(newUser));
+    if (selectedUser) {
+      await httpClientApi.httpPut("/usersList", user);
+    } else {
+      dispatch(addUserAction(user));
+    }
 
     setIsModalOpen(false);
 
@@ -138,32 +132,46 @@ function User(props: any) {
   }
 
   //Search function
-  const data = usersList.map((ele, idx) => {
-    return {
-      key: idx + 1,
-      // key: ele.id,
-      id: ele.id,
-      name: ele.name,
-      age: ele.age,
-    };
-  });
-
   const onSearch = (value: string) => {
     console.log(value);
 
-    let searchData = data.filter((ele) => {
+    let searchData = usersList.filter((ele) => {
       return (
-        ele.name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !== -1
+        ele.name.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !==
+          -1 ||
+        ele.id.toLowerCase().trim().indexOf(value.toLowerCase().trim()) !==
+          -1 ||
+        ele.age.toString().trim().indexOf(value.toLowerCase().trim()) !== -1
       );
     });
 
     console.log(searchData);
 
-    // setSearchState(searchData);
-
-    // console.log(searchState);
+    setSearchState(searchData);
   };
   //End of Search function
+
+  //Form
+  const showPopover = (record: any) => {
+    // setIsShowPopover(true);
+    setkeySelectRecord(record.id);
+
+    console.log(record);
+
+    setSelectedUser(record);
+
+    showModal();
+  };
+
+  useEffect(() => {
+    if (selectedUser) {
+      form.setFieldsValue({
+        ...selectedUser,
+      });
+    } else {
+      form.setFieldsValue({});
+    }
+  }, [selectedUser]);
 
   const columns = [
     {
@@ -198,7 +206,7 @@ function User(props: any) {
               content={
                 <>
                   <div className="edit-user">
-                    <a onClick={() => onEditUser(record)}>Edit</a>
+                    <a onClick={() => onEditUser(record)}>{record.id}</a>
                   </div>
                 </>
               }
@@ -259,7 +267,14 @@ function User(props: any) {
                   type="primary"
                   htmlType="submit"
                   // onClick={onAddNewUser}
-                  onClick={showModal}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setSelectedUser(null);
+                    form.setFieldsValue({
+                      name: "",
+                      age: "",
+                    });
+                  }}
                 >
                   Add User
                 </Button>
@@ -268,7 +283,7 @@ function User(props: any) {
             <hr></hr>
             <Table
               columns={columns}
-              dataSource={usersList}
+              dataSource={searchState.length > 0 ? searchState : usersList}
               pagination={false}
             />
           </Content>
@@ -286,10 +301,14 @@ function User(props: any) {
         <p>Some contents...</p>
         <p>Some contents...</p> */}
         <Form
+          form={form}
           name="basic"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
-          initialValues={{ remember: true }}
+          initialValues={{
+            name: "",
+            age: "",
+          }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
@@ -310,9 +329,19 @@ function User(props: any) {
             <Input />
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit">
+            {selectedUser ? (
+              <Button type="primary" htmlType="submit">
+                Edit user
+              </Button>
+            ) : (
+              <Button type="primary" htmlType="submit">
+                Add user
+              </Button>
+            )}
+
+            {/* <Button type="primary" htmlType="submit">
               Add user
-            </Button>
+            </Button> */}
           </Form.Item>
         </Form>
       </Modal>

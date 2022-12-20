@@ -15,7 +15,7 @@ export const fetchUsersListAction = createAsyncThunk(
 
 export const addUserAction = createAsyncThunk(
   "usersList/addUser",
-  async (data: NewUser) => {
+  async (data: User) => {
     await httpClientApi.httpPost("/userList", data);
 
     const response = await httpClientApi.httpGet("/userList");
@@ -32,7 +32,7 @@ export interface UserType {
   age: number;
 }
 
-export interface NewUser {
+export interface User {
   name: string;
   age: number;
 }
